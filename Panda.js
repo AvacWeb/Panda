@@ -215,5 +215,10 @@
 		panda.end();
 	};
 	
-	window.panda = panda;
+	if (typeof module === 'object' && typeof module.exports === 'object') { 
+		module.exports = panda; 
+	}
+	else {
+		window.panda = panda;
+	}
 })();
