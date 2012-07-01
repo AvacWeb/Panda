@@ -1,10 +1,10 @@
-/* 
-* Panda Syntax Highlighter
-* Created by LGforum @ AvacWeb (avacweb.com)
-* AvacWeb Copyright 2011-2012
-* All Right Reserved.
-* No unauthorized distrubution or copying.
-*/
+/**
+ * Panda.js
+ * Client side syntax highlighter for HTML, CSS and Javascript
+ *
+ * Copyright 2011-2012 AvacWeb (avacweb.com)
+ * Released under the MIT and GPL Licenses.
+ */
 (function(){
 	var panda = {
 		store: {comments:{}, strings:{}}, //stores things stripped out.
