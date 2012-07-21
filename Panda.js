@@ -74,8 +74,9 @@
 	
 	//parse function parses a string of text for any of the set up languages above.
 	panda.parse = function(type, code) {
-		var codeObj = panda[type]
-		, matchers = codeObj['matchers']
+		var codeObj = panda[type];
+		if(!codeObj) return code;
+		var matchers = codeObj['matchers']
 		, keywords = codeObj['keywords']
 		, specials = codeObj['specials']
 		, uid = (new Date()).getTime() //unique ID for our replacements. 
@@ -114,7 +115,7 @@
 	};
 	
 	panda.colorNode = function(node) {
-		var reg = RegExp('(?:\\s|^)panda_('+ languages.replace(/\s/g, '|') + ')(?:\\s|$)');
+		var reg = /(?:\s|^)panda_(\w+)(?:\s|$)/;
 		if( reg.test( node.className ) ) {
 			var type = reg.exec(node.className)[1];
 			if(node.nodeName.toLowerCase() == 'code' && node.parentNode.nodeName.toLowerCase() != 'pre') {
