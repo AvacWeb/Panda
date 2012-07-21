@@ -40,7 +40,7 @@
 	
 	panda.php.keywords = 'var function private public static if else return while do this new typeof for foreach as null false true'.split(' ');
 	panda.php.specials = 'echo require include int array global'.split(' ');
-	panda.php.matchers = 'comment1 comment2 comment3 multiLineString1 multiLineString2 phpvar phptag operators extra'.split(' ');
+	panda.php.matchers = 'comment3 comment2 comment1 multiLineString1 multiLineString2 phpvar phptag operators extra'.split(' ');
 	
 	panda.css.keywords = panda.css.specials = [];
 	panda.css.matchers = 'comment2 string1 string2 selector extra'.split(' ');

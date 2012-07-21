@@ -7,7 +7,7 @@ __Panda is a tiny but powerful syntax highlighting tool with the ability to easi
 This is my first ever syntax highlighter so any tips or improvements are welcome. 
 **Panda** can be used for adding line numbers to code blocks and comes equipped with the ability to highlight Javascript, HTML, CSS and PHP. 
 
-**Panda** can also easily be added as a jQuery plug in. 
+**Panda** can also be used with jQuery to let jQuery do everything for you. 
 
 ```javascript
 panda.colorNode( codeElement );
@@ -32,14 +32,14 @@ The `colorNode` method will then color it for you, replacing the innerHTML prope
 ```javascript
 panda.colorNode( codeElement );
 ```
-Note: this will wrap code blocks that in a PRE tag if it is not already to keep spacing and layout correct.
+Note: this will wrap code blocks in a PRE tag if it is not already to keep spacing and layout correct.
 
 #### Parsing HTML
 The `parse` method deals with parsing a string of HTML and adding the SPAN elements at the correct places. This method is used internally when coloring a code block, but it can also be used for external use too, for such things like parsing code in textboxes. 
 
 The method takes two parameters, the language to parse, and the string of code. A new string of HTML will be returned with line numbers and span elements included. 
 
-Parsing CSS with line numbers:
+Parsing CSS:
 ```javascript
 panda.parse('css', '#select { display: none }');
 ```
@@ -48,7 +48,7 @@ __Simple eh?__
 
 Styling Panda
 ------------------------------------    
-The SPAN tags inside the Panda'd code do not contain a color in them, in order to make them colored you will need to declare a color property for them in your CSS. This allows for much more freedom of how you would like your code to look and making it match your site.
+The SPAN tags inside the Panda'd code do not contain a color in a style attribute, in order to make them colored you will need to declare a color property for them in your CSS. This allows for much more freedom of how you would like your code to look and making it match your site.
 
 Here's some default CSS to install to get going:
 ```css
@@ -117,7 +117,7 @@ Adding to Panda
 ---------------------------
 
 #### Adding Keywords or Specials
-You can extra keywords and special words to a language using the `addKeyword` or `addSpecial` method.
+You can add extra keywords and special words to a language using the `addKeyword` or `addSpecial` method.
 ```javascript
 panda.addKeyword('js', 'in');
 panda.addSpecial('js', 'indexOf');
@@ -130,7 +130,7 @@ Panda is designed to make adding a new language very easy. Panda may be able to 
 
 You add a new language using the `addLang` method. 
 
-It takes two parameters, the first should be a name for your language, for exmaple: 'php', or 'sql' etc. This name should be your permanent reference to that language, for parsing, for classNames you give to code boxes (E.g if you name your new lang 'perl' then the code classname should be 'panda_perl'), and also for adding keywords and specials. 
+It takes two parameters, the first should be a name for your language, for example: 'php', or 'sql' etc. This name should be your permanent reference to that language, for parsing, for classNames you give to code boxes (E.g if you name your new lang 'perl' then the code classname should be 'panda_perl'), and also for adding keywords and specials. 
 
 The second should be an object containing at least 3 properties: matchers, keywords and specials. An optional 4th property, an object containing new needed RegExps. 
 
@@ -173,9 +173,9 @@ If the language your adding requires more Regular Expressions to be added to giv
 Now taking a look at the commented example below should help:
 ```javascript
 panda.addLang('example', {
-	matchers : 'comment1 string1 string 2 regex extra aspTags',
-	keywords : 'response request', //keywords in the language
-	specials : ['server', 'write'] //could be an array rather than string
+	matchers : 'comment1 string1 string 2 regex operators extra aspTags',
+	keywords : 'dim for if else while to', //keywords in the language
+	specials : ['server', 'write', 'response', 'request'] //could be array instead
 	regex : {
 		aspTags : /((<|&lt;)%)|(%(>|&gt;))/g
 	}
