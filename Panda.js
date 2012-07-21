@@ -6,213 +6,147 @@
  * Released under the MIT and GPL Licenses.
  */
 (function(){
+	var languages = 'js html css php'; //To begin a new language add it to this string. Use only letters.
 	var panda = {
-		store: {comments:{}, strings:{}}, //stores things stripped out.
-		code : null
-	};
-	
-	panda.js = {
-		reserved :  { 'var':1,'function':1,'return':1,'if':1,'else':1,'while':1,'do':1,'this':1,'new':1,'typeof':1, 'for':1},
-		custom : {
-			'document' : 'pandaOther',
-			'window' : 'pandaOther',
-			'null' : 'pandaOther',
-			'false' : 'pandaOther',
-			'true' : 'pandaOther',
-			'Array' : 'pandaFunc',
-			'RegExp' : 'pandaFunc',
-			'Object' : 'pandaFunc'
-		},
-		addCustom: function(name, cn) { //public API for adding custom words. 
-			this.custom[name] = cn;
+		lineNumbering : true, //set to false to disable adding line numbers.
+		regex : {
+			regex : /\/(.(?!\\\/)).*\//g,
+			comment1 : /\/\/[^\n]*/g,
+			comment2 : /\/\*(.|[\n\r])*?\*\//gm,
+			comment3 : /#[^\n]*/g,
+			comment4 : /(&lt;|<)!--.*?--(&gt;|>)/g,
+			string1 : /"(\\"|[^"])*"/g,
+			string2 : /'(\\'|[^'])*'/g,
+			multiLineString1 : /"(\\"|[^"])*"/gm,
+			multiLineString2 : /'(\\'|[^'])*'/gm,
+			phptag : /((?:<|&lt;)\?(php)?)|(?:\?(?:>|&gt;))/g,
+			htmltag : /(?:&lt;|\<).*?(?:&gt;|\>)/g,
+			htmlspecial : /(?:&lt;|\<)\/?(head|html|body|a|script|meta|link)#?.*?(?:&gt;|\>)/g, //# because of our swaps
+			operators : /(?:(!|=)?==?)|(?:\|\|)|[\-\+\>\/\*%]/g,
+			attribute : /\s[\w\-]+(?==["'].*?['"])/g,
+			phpvar : /\$[\w\d_]+(?=\W)/g,
+			selector : /.*?(?=\s*\{)/g,
+			extra : /[:\{\}\[\]\(\)]/g //can't includes ';' because it can be in any entity.
 		}
 	};
+	languages.replace(/\w+/g, function(l) { panda[l] = {}; });
+
+	panda.js.keywords = 'var function return if else while do this new typeof for null false true'.split(' ');
+	panda.js.specials = 'document window Array RegExp Object Math String Number Date'.split(' ');
+	panda.js.matchers = 'comment1 comment2 string1 string2 regex operators extra'.split(' ');
 	
+	panda.html.keywords = panda.html.specials = [];
+	panda.html.matchers = 'comment4 attribute htmlspecial htmltag'.split(' ');
+	
+	panda.php.keywords = 'var function private public static if else return while do this new typeof for foreach as null false true'.split(' ');
+	panda.php.specials = 'echo require include int array global'.split(' ');
+	panda.php.matchers = 'comment1 comment2 comment3 multiLineString1 multiLineString2 phpvar phptag operators extra'.split(' ');
+	
+	panda.css.keywords = panda.css.specials = [];
+	panda.css.matchers = 'comment2 string1 string2 selector extra'.split(' ');
+	
+	// For new languages. 
+	// panda.newLang.keywords = 'keywords in the new language'.split(' '); 
+	// panda.newLand.specials = 'special keywords often colored differently'.split(' ');
+	// panda.newLang.matchers = 'list of regexs from the above which occur in this language. The order matters'.split(' ')
+	
+	//swap all BR elements into new lines. Makes it easier imo. 
+	function brSwap(code, dir) {
+		return dir ? code.replace(/\n/g, '<br/>') : code.replace(/\<br\s?\/?\>/g, '\n');
+	};
+	
+	//wrap text in SPAN tags with a classname.
 	function spanWrap(cn, text) {
-		return '<span class="'+cn+'">'+text+'</span>';
-	};
-	
-	function swapInts(code) { //swaps all "safe-to-swap" ints in a code. Avoiding our replacement alias's.
-		return code.replace(/\W(?!_\d+_)(\d+)(?!\d+#)/g, function(n, d) {
-			return n.replace(d,  spanWrap('pandaInt', d) );
-		});
-	};
-	
-	function swapOperators(code) {
-		return code.replace(/(&&|==|!==?|\|\|)/g, function(m) { return spanWrap('pandaOperator', m); });
+		return '<span class="' + cn + '">' + text + '</span>';
 	};
 	
 	//replaces special words such as 'var' and 'function' etc. Avoids it in variable names such as var myfunction;
 	function parseSpecial(code, word, cn) {
-		return code.replace(RegExp('(\\W)'+word+'(\\W)', 'g'), function(c) {
+		return code.replace(RegExp('(^|\\W)' + word + '(\\W)', 'g'), function(c) {
 			return c.replace(word, spanWrap(cn, word) );
 		});
 	};
 	
-	//this ugly mess switches escaped quotes out of strings, so they aren't confused as the end of the string.
-	function loseEscapes(code, uid) {
-		return code.replace(/\\(['"])/g, function(s, c) {
-   			var type = (c == '"') ? 'd' : 's'; //s = single, d = double. Used for when returning back into code.
-   			return '#escape_'+type+'_'+uid+'#'; //ugly replacement, which can't be replicated in the code.
-		});
+	//adds the line numbers. If you wish to add a classname to each line add it in this func.
+	function addLines(code) {
+		return '<ol class="pandaCode"><li>' + code.split(/\n/).join('</li><li>') + '</li></ol>';
 	};
 	
-	function restoreEscapes(code, uid) {
-		code = code.replace( new RegExp('#escape_d_'+uid+'#', 'g'), '\\"');
-		code = code.replace( new RegExp('#escape_s_'+uid+'#', 'g'), "\\'");
-		return code;
-	};
-
-	panda.start = function(node) {
-		if(this.code) this.end();
-		//use the time as a unique id. This way it can't be confused with anything in the actual code.
-		this.uid = (new Date()).getTime();	
-		this.code = node.innerHTML;
-		this.node = node;
-		return this;
-	};
-	
-	panda.strip = function(code) {
-		var uid = this.uid, count = 0, commentCount = 0;
-		code = loseEscapes(code, uid);
+	//parse function parses a string of text for any of the set up languages above.
+	panda.parse = function(type, code) {
+		var codeObj = panda[type]
+		, matchers = codeObj['matchers']
+		, keywords = codeObj['keywords']
+		, specials = codeObj['specials']
+		, uid = (new Date()).getTime() //unique ID for our replacements. 
+		, store = {}
+		, code = brSwap( code.replace(/(^[\s\t\n]+)|([\s\t\n]+$)/g, '') ); //remove whitespace at start and end. and BR's
 		
-		//first strip comments. Because comments can contain anything.
-		code = code.replace( /([^:]|^)\/\/(?:.(?!\<br\s?\/?\>|\n))+./g, function(comment) {
-			var key = '#comment_'+(commentCount++)+'_'+uid+'#';
-			var firstChar = comment.charAt(0); //this prevents comments in URLs http://incorrect comment...
-			if(firstChar != '/') {
-				comment = comment.substr(1);
-			}
-			else {
-				firstChar = '';
-			}
-			panda.store.comments[ key ] = comment;
-			return firstChar + key;
-		});
-		
-		code = code.replace( /\/\*(?:[\s\S](?!\*\/))*.\*\//g, function(comment) { 
-			var key = '#comment_'+(commentCount++)+'_'+uid+'#';
-			panda.store.comments[ key ] = comment;
-			return key;
-		});
-
-		code = code.replace(/'[^']*'|"[^"]*"/g, function(string) {  //now strip out strings.
-  			var key = '#string_'+(count++)+'_'+uid+'#';
-  			panda.store.strings[ key ] = string;
-  			return key;
-		});
-		return code;
-	};
-	
-	//returns all stripped content.
-	panda.returnStore = function(code) {
-		var uid = this.uid, 
-		store = this.store;
-		
-		for(var str in store.strings) {
-			code = code.replace(str, spanWrap('pandaString', store.strings[str]) );
-		}
-		
-		for(var com in store.comments) {
-			var full = store.comments[com];
-			full = full.split(/(?:\<br\s?\/?\>|\n)/).join('</span><br /><span class="pandaComment">'); //prevents invalid nesting
-			code = code.replace(com, spanWrap('pandaComment', full) );
-		}
-		return restoreEscapes(code, uid);
-	};
-	
-	panda.js.parse = function(node) {
-		if(!this.code) panda.start(node);		
-		var code = panda.code,
-		reserved = panda.js.reserved,
-		custom = panda.js.custom,
-		uid = panda.uid; 
-
-		code = panda.strip(code); //strip things.
-		code = code.replace(/([=\.\[\]])/g, '<span class="pandaReserved">$1</span>'); //Nice to have = . [ and ] colored.
-		code = swapInts(code); //swap all the ints
-		code = swapOperators(code);
-		for(var word in reserved) {
-			code = parseSpecial(code, word, 'pandaReserved');
-		}
-				
-		for(var word in custom) {
-			code = parseSpecial( code, word, custom[word]);
-		}
-		return panda.returnStore(code);
-	};
-	
-	//insert the colored html into the code block.
-	panda.insert = function(code, node, lines) {
-		if(lines) code = addLines(code);	
-		node.innerHTML = code;
-		panda.end(); 
-	}
-	
-	function addLines(code, html) {
-		return '<ol class="pandaCode"><li>'+code.split(/(?:\<br\s?\/?\>(?!\<\/span\>)|\n)/).join('</li><li>')+'</li></ol>';
-	};
-	
-	panda.end = function() {
-		this.code = null;
-		this.node = null;
-		this.store = {strings:{}, comments:{}};
-	};
-	
-	panda.html = {
-		parse : function(node) {
-			if(!this.code) panda.start(node);		
-			var code = panda.code,
-			uid = panda.uid,
-			comments = {},
-			count = 0;
+		for(var i = 0, l = matchers.length; i<l; i++) {
+			var m = matchers[ i ]
+			, r = this.regex[ m ]
+			, key = '#' + m + '_' + uid + '_'
+			, count = 0
+			, hold = store[ m ] = {};
+			if(!r) continue;
 			
-			code = loseEscapes(code, uid);
-			code = code.replace(/&lt;!?--(?:.(?!--&gt;|--\>))*.(?:--&gt;|--\>)/g, function(comment) { //strip html comments.
-				var key = '#comment_'+(count++)+'_'+uid+'#';
-				comments[ key ] = comment;
-				return key;
+			code = code.replace(r, function( c ) {
+				var alias = key + count++ + '_' + (r.multiline ? 'm' : '') + '#'; //creates a swap like #regex_uid_1#
+				hold[ alias ] = c;
+				return alias;
 			});
+		};
+		
+		for(i = 0, l = keywords.length; i<l; i++) code = parseSpecial(code, keywords[i], 'panda-keyword');
+		for(i = 0, l = specials.length; i<l; i++) code = parseSpecial(code, specials[i], 'panda-special');
+		
+		for(i = matchers.length; i; i--) {
+			var m = matchers[ i - 1 ], stripped = store[ m ];			
+			for(var stripKey in stripped) {
+				var s = stripped[ stripKey ];
+				if(stripKey.indexOf('_m_#')) s = s.replace(/\n/g, '</span>\n<span class="panda-' + m + '">');
+				code = code.replace( stripKey, spanWrap('panda-'+m, s) );
+			}
+		};
+		
+		if(this.lineNumbering) code = addLines(code);
+		return brSwap( code.replace(/\t|(    )/g, '&nbsp;&nbsp;&nbsp;&nbsp;') , 1);
+	};
+	
+	panda.colorNode = function(node) {
+		var reg = RegExp('(?:\\s|^)panda_('+ languages.replace(/\s/g, '|') + ')(?:\\s|$)');
+		if( reg.test( node.className ) ) {
+			var type = reg.exec(node.className)[1];
+			if(node.nodeName.toLowerCase() == 'code' && node.parentNode.nodeName.toLowerCase() != 'pre') {
+				var pre = document.createElement('pre');
+				node.parentNode.insertBefore(pre, node);
+				pre.appendChild( node );
+			}
+			node.innerHTML = panda.parse(type, node.innerHTML);
+		}
+	};
+	
+	panda.addKeyword = function(lang, word) {
+		panda[ lang ].keywords.push(word);
+	};
+	
+	panda.addSpecial = function(lang, word) {
+		panda[ lang ].specials.push(word);
+	};
+	
+	panda.addLang = function(name, obj) {
+		if('matchers' in obj && 'keywords' in obj && 'specials' in obj) {
+			var n = panda[name] = {};
+			n.matchers = typeof obj.matchers == 'string' ? obj.matchers.split(' ') : obj.matchers;
+			n.specials = typeof obj.specials == 'string' ? obj.specials.split(' ') : obj.specials;
+			n.keywords = typeof obj.keywords == 'string' ? obj.keywords.split(' ') : obj.keywords;
 			
-			//tackle all tags.
-			code = code.replace(/&lt;(?:.(?!&gt;|\>))+.(?:&gt;|\>)/g, function(tag) {
-				if(/^&lt;\/?a(\s|\>|&gt;)/.test(tag)) {
-					tag = tag.replace(/"[^"]+"|'[^']+'/g, function(attr) {
-						return spanWrap('pandaTag', attr);
-					});
-					return spanWrap('pandaAnchor', tag);
+			if(obj.regex && typeof obj.regex == 'object') {
+				for(var i in obj.regex) {
+					panda.regex[ i ] = obj.regex[ i ];
 				}
-				return spanWrap('pandaTag', tag);
-			});
-			
-			for(var c in comments) { //add back comments.
-				code = code.replace(c, spanWrap('pandaComment', comments[c]) );
 			}
-			return restoreEscapes(code, uid);	
 		}
-	};
-	
-	panda.css = {
-		parse : function(node) {
-			if(!this.code) panda.start(node);		
-			var code = panda.code,
-			uid = panda.uid; 
-
-			code = panda.strip(code); //strip things that shouldn't change
-			code = code.replace(/[^\{\}]+\{/g, function(sel) { //colors selectors whilst maintaining valid nesting.
-				return sel.replace(/(.*(?:\<br\s?\/?\>|\n))*(.+)/, '$1<span class="pandaOther">$2</span>');
-			});
-
-			code = code.replace(/([\{\}]|:(?!\w))/g, '<span class="pandaFunc">$1</span>');
-			return panda.returnStore(code);	
-		}
-	};
-	
-	//general function used for parsing a code block. type = 'js|'html'|'css' node = code element, lines = bool lines or not.
-	panda.parse = function(type, node, lines) {
-		var code = panda[type].parse(node);
-		panda.insert(code, node, lines);
-		panda.end();
 	};
 	
 	if (typeof module === 'object' && typeof module.exports === 'object') { 
