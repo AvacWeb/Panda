@@ -61,8 +61,8 @@
 	};
 	
 	//replaces special words such as 'var' and 'function' etc. Avoids it in variable names such as var myfunction;
-	function parseSpecial(code, word, cn) {
-		return code.replace(RegExp('(^|\\W)' + word + '(\\W)', 'g'), function(c) {
+	function parseSpecials(code, arr, cn) {
+		return code.replace(RegExp('(?:^|\\W)(' + arr.join('|') + ')(?:\\W)', 'g'), function(c, word) {
 			return c.replace(word, spanWrap(cn, word) );
 		});
 	};
@@ -98,8 +98,8 @@
 			});
 		};
 		
-		for(i = 0, l = keywords.length; i<l; i++) code = parseSpecial(code, keywords[i], 'panda-keyword');
-		for(i = 0, l = specials.length; i<l; i++) code = parseSpecial(code, specials[i], 'panda-special');
+		if(keywords.length) code = parseSpecials(code, keywords, 'panda-keyword');
+		if(specials.length) code = parseSpecials(code, specials, 'panda-special');
 		
 		for(i = matchers.length; i; i--) {
 			var m = matchers[ i - 1 ], stripped = store[ m ];			
@@ -116,7 +116,6 @@
 	
 	panda.colorNode = function(node) {
 		var type = panda.identify( node );
-		alert( type );
 		if(!type) return;
 		if(node.nodeName.toLowerCase() == 'code' && node.parentNode.nodeName.toLowerCase() != 'pre') {
 			var pre = document.createElement('pre');

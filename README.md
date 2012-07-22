@@ -113,9 +113,11 @@ jQuery Panda
 For those that like things to be even easier, if you have jQuery, you can add this snippet to get things going automatically.
 ```javascript
 $(function() {
-	$('code').each(panda.colorNode);
+	$('code').each(function() { panda.colorNode(this); });
 });
 ```
+(why does jQuery pass the index first rather than DOMElement? ... Annoying. )
+
 Remember to give your codeblocks a `panda_lang` className to help speed things along.
 
 __Enjoy__
@@ -125,6 +127,8 @@ Adding to Panda
 ---------------------------
 
 #### Adding Keywords or Specials
+__Keywords and Specials can only be "words", do not add symbols or operators using these methods. '_' and '-' might be okay for including functions like 'array_walk' for example. __
+
 You can add extra keywords and special words to a language using the `addKeyword` or `addSpecial` method.
 ```javascript
 panda.addKeyword('js', 'in');
@@ -142,7 +146,7 @@ It takes two parameters, the first should be a name for your language, for examp
 
 The second should be an object containing at least 3 properties: matchers, keywords and specials. An optional 4th property, an object containing new needed RegExps. 
 
-The keywords, matchers and specials property, should be either a string or an array. A string should have its values seperated by a space (eg. 'var if else' or ['var', 'if', 'else']).
+The keywords, matchers and specials property, should be either a string or an array. A string should have its values seperated by a space (eg. 'var if else' or ['var', 'if', 'else']). They should only contain word characters (A-Z) and underscore and hyphen.
 
 The keywords property refers to keywords in the language, for Javascript this would be words such as 'if' 'else' 'var' 'for' etc. 
 
