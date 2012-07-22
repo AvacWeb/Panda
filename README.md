@@ -79,7 +79,8 @@ Here's some default CSS to install to get going:
 }
 ol.pandaCode li {
 	padding: 1px;
-	border-left: 1px solid green;
+	margin: 3px 0;
+	border-left: 2px solid green;
 }
 ```
 
@@ -127,7 +128,7 @@ Adding to Panda
 ---------------------------
 
 #### Adding Keywords or Specials
-__Keywords and Specials can only be "words", do not add symbols or operators using these methods. '_' and '-' might be okay for including functions like 'array_walk' for example. __
+__Keywords and Specials can only be "words", do not add symbols or operators using these methods. Underscore and '-' might be okay for including functions like 'array_walk' for example. __
 
 You can add extra keywords and special words to a language using the `addKeyword` or `addSpecial` method.
 ```javascript
