@@ -2,11 +2,11 @@ Panda Syntax Highlighter
 ===============================
 According to Closure-Compiler: Size = 5KB, Compiled size = 3KB, GZipped = 1.5KB.
 
-[Using Panda](#using-panda)
-[Styling Panda](#styling-panda)
-[jQuery Panda](#jquery-panda)
-[Adding to Panda](#adding-to-panda)
-[Add SQL to Panda](#add-sql-to-panda)
+* [Using Panda](#using-panda)
+* [Styling Panda](#styling-panda)
+* [jQuery Panda](#jquery-panda)
+* [Adding to Panda](#adding-to-panda)
+* [Add SQL to Panda](#add-sql-to-panda)
 
 Intro
 ----------------
