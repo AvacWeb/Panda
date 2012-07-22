@@ -11,7 +11,7 @@
 		lineNumbering : true, //set to false to disable adding line numbers.
 		regex : {
 			regex : /\/(.(?!\\\/)).*\//g,
-			comment1 : /\/\/[^\n]*/g,
+			comment1 : /(?!:(?=\/))[^:]\/\/[^\n]*/g,
 			comment2 : /\/\*(.|[\n\r])*?\*\//gm,
 			comment3 : /#[^\n]*/g,
 			comment4 : /(&lt;|<)!--.*?--(&gt;|>)/g,
@@ -20,8 +20,8 @@
 			multiLineString1 : /"(\\"|[^"])*"/gm,
 			multiLineString2 : /'(\\'|[^'])*'/gm,
 			phptag : /((?:<|&lt;)\?(php)?)|(?:\?(?:>|&gt;))/g,
-			htmltag : /(?:&lt;|\<).*?(?:&gt;|\>)/g,
-			htmlspecial : /(?:&lt;|\<)\/?(head|html|body|a|script|meta|link)#?.*?(?:&gt;|\>)/g, //# because of our swaps
+			htmltag : /(?:&lt;|\<).+?(?:&gt;|\>)/g,
+			htmlspecial : /(?:&lt;|\<)\/?(head|html|body|a|script|meta|link)#?.*?(?:&gt;|\>)/g, //hash because of our swaps
 			operators : /(?:(!|=)?==?)|(?:\|\|)|[\-\+\>\/\*%]/g,
 			attribute : /\s[\w\-]+(?==["'].*?['"])/g,
 			phpvar : /\$[\w\d_]+(?=\W)/g,

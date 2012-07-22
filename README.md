@@ -2,6 +2,14 @@ Panda Syntax Highlighter
 ===============================
 According to Closure-Compiler: Size = 5KB, Compiled size = 3KB, GZipped = 1.5KB.
 
+[Using Panda](#using-panda)
+[Styling Panda](#styling-panda)
+[jQuery Panda](#jquery-panda)
+[Adding to Panda](#adding-to-panda)
+[Add SQL to Panda](#add-sql-to-panda)
+
+Intro
+----------------
 __Panda is a tiny but powerful syntax highlighting tool with the ability to easily add new languages.__
 
 This is my first ever syntax highlighter so any tips or improvements are welcome. 
@@ -182,3 +190,20 @@ panda.addLang('example', {
 });
 ```
 
+Add SQL to Panda
+----------------------------
+Here's the necessary to call to `addLang` method to add SQL syntax highlighting to Panda:
+```javascript
+panda.addLang('sql', {
+	keywords : 'select SELECT DELETE delete UPDATE update SET set FROM from WHERE where AND and OR or INSERT INTO insert into DROP CREATE INDEX drop create index ALTER alter AS as',
+	specials : 'DISTINCT distinct ASC asc DESC desc DATABASE database TABLE table',
+	matchers : 'comment3 string1 string2 operators'
+});
+panda.addKeyword('sql', 'GROUP BY');
+panda.addKeyword('sql', 'group by');
+panda.addKeyword('sql', 'ORDER BY');
+panda.addKeyword('sql', 'order by');
+```
+
+Image Demo:
+![Panda SQL](http://i40.servimg.com/u/f40/17/20/25/96/captur37.png)
