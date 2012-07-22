@@ -6,9 +6,10 @@
  * Released under the MIT and GPL Licenses.
  */
 (function(){
-	var languages = 'js html css php'; //To begin a new language add it to this string. Use only letters.
 	var panda = {
 		lineNumbering : true, //set to false to disable adding line numbers.
+		languages : ['js', 'html', 'css', 'php'],
+		js : {}, html : {}, css: {}, php : {}, //To begin a new language add a new empty object, and to the languages array
 		regex : {
 			regex : /\/(.(?!\\\/)).*\//g,
 			comment1 : /(?!:(?=\/))[^:]\/\/[^\n]*/g,
@@ -29,7 +30,6 @@
 			extra : /[:\{\}\[\]\(\)]/g //can't includes ';' because it can be in any entity.
 		}
 	};
-	languages.replace(/\w+/g, function(l) { panda[l] = {}; });
 
 	panda.js.keywords = 'var function return if else while do this new typeof for null false true'.split(' ');
 	panda.js.specials = 'document window Array RegExp Object Math String Number Date'.split(' ');
@@ -115,16 +115,37 @@
 	};
 	
 	panda.colorNode = function(node) {
-		var reg = /(?:\s|^)panda_(\w+)(?:\s|$)/;
-		if( reg.test( node.className ) ) {
-			var type = reg.exec(node.className)[1];
-			if(node.nodeName.toLowerCase() == 'code' && node.parentNode.nodeName.toLowerCase() != 'pre') {
-				var pre = document.createElement('pre');
-				node.parentNode.insertBefore(pre, node);
-				pre.appendChild( node );
-			}
-			node.innerHTML = panda.parse(type, node.innerHTML);
+		var type = panda.identify( node );
+		alert( type );
+		if(!type) return;
+		if(node.nodeName.toLowerCase() == 'code' && node.parentNode.nodeName.toLowerCase() != 'pre') {
+			var pre = document.createElement('pre');
+			node.parentNode.insertBefore(pre, node);
+			pre.appendChild( node );
 		}
+		node.innerHTML = panda.parse(type, node.innerHTML);
+	};
+	
+	panda.identify = function(node) {
+		var reg = /(?:\s|^)panda_(\w+)(?:\s|$)/;
+		if( reg.test( node.className ) ) return reg.exec(node.className)[1]; //test classname for panda_lang class
+		var scores = {}, regex = panda.regex, code = node.innerHTML, langs = panda.languages
+		, i = 0, l = langs.length, winner = 0, winning_lang = null;
+		
+		for(var r in regex) scores[r] = (code.match( regex[r] ) || []).length; //find total matches for all the machers
+		
+		for(; i<l; i++) {
+			var total = 0, lang = panda[ langs[i] ];
+			//create a score for this language, by totaling the number of matches form the matchers.
+			for(var j = 0, k = lang.matchers.length; j<k; j++) total += scores[ lang.matchers[j] ];
+			//total up occurences of keywords.
+			total += (code.match(RegExp( lang.keywords.join('|') )) || []).length;
+			if(total > winner) {
+				winner = total;
+				winning_lang = langs[i];
+			} 
+		};
+		return winning_lang;
 	};
 	
 	panda.addKeyword = function(lang, word) {
@@ -138,6 +159,7 @@
 	panda.addLang = function(name, obj) {
 		if('matchers' in obj && 'keywords' in obj && 'specials' in obj) {
 			var n = panda[name] = {};
+			panda.languages.push( name );
 			n.matchers = typeof obj.matchers == 'string' ? obj.matchers.split(' ') : obj.matchers;
 			n.specials = typeof obj.specials == 'string' ? obj.specials.split(' ') : obj.specials;
 			n.keywords = typeof obj.keywords == 'string' ? obj.keywords.split(' ') : obj.keywords;

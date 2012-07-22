@@ -2,11 +2,11 @@ Panda Syntax Highlighter
 ===============================
 According to Closure-Compiler: Size = 5KB, Compiled size = 3KB, GZipped = 1.5KB.
 
-[Using Panda](#using-panda)
-[Styling Panda](#styling-panda)
-[jQuery Panda](#jquery-panda)
-[Adding to Panda](#adding-to-panda)
-[Add SQL to Panda](#add-sql-to-panda)
+* [Using Panda](#using-panda)
+* [Styling Panda](#styling-panda)
+* [jQuery Panda](#jquery-panda)
+* [Adding to Panda](#adding-to-panda)
+* [Add SQL to Panda](#add-sql-to-panda)
 
 Intro
 ----------------
@@ -33,7 +33,7 @@ To color a code block or element you should first give the element a classname i
 * For PHP : 'panda_php'
 * For Custom : 'panda_customName'
 
-**Panda** will check the className and grab the end section, so it knows how to parse the code inside it.
+This is recommended, but optional. This tells **Panda** what language is in the code box, however, if you do not specify one of these classnames __Panda can identify the code__.
 
 The `colorNode` method will then color it for you, replacing the innerHTML property.
 
@@ -116,7 +116,7 @@ $(function() {
 	$('code').each(panda.colorNode);
 });
 ```
-Then its as simple as giving your code blocks either the classname of 'panda_css', 'panda_js' or 'panda_html' etc, pretty self explanatory. 
+Remember to give your codeblocks a `panda_lang` className to help speed things along.
 
 __Enjoy__
 
@@ -136,7 +136,7 @@ panda.addSpecial('php', 'header');
 #### Adding a new language
 Panda is designed to make adding a new language very easy. Panda may be able to provide you with all you need but potentially you may need to have some knowledge of Javascript RegExp.
 
-You add a new language using the `addLang` method. 
+You add a new language using the `addLang` method. (Alternatively, developers can just as easily add one in the source very quickly, by following the comments in the code.)
 
 It takes two parameters, the first should be a name for your language, for example: 'php', or 'sql' etc. This name should be your permanent reference to that language, for parsing, for classNames you give to code boxes (E.g if you name your new lang 'perl' then the code classname should be 'panda_perl'), and also for adding keywords and specials. 
 
