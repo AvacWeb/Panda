@@ -9,7 +9,7 @@
 			xmlcomment : /&lt;!--.*?--(?:&gt;|>)/g,
 			htmltag : /&lt;\/?.+?(?:&gt;|\>)/g,
 			attribute : /\b[\w\d\-]+(?==["'].*?['"])/g,
-			attributevalue : /\B(["'])(?:\\?.)+\1(?=[^>]*?(?:>|&gt;))/g
+			attributevalue : /\B["'](?:\\?.)+?['"](?=(?:.(?!>|&gt;)|(?:&gt;|>))+)/g
 		}
 	}
 	p.addLang('xml', obj);

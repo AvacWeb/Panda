@@ -2,12 +2,13 @@
 (function(p) {
 	if(!p) return;
 	p.addLang('css', {
-		matchers : 'comment2 string selector important extra',
+		matchers : 'comment2 string selector cssproperty important',
 		specials : [],
 		keywords : [],
 		regex : { 
-			selector : /[^\{\}]+?(?=\s*\{)/g,
-			important : /\B!important(?=\W)/g
+			selector : /[^\{\}]+?(?=\s*?\{)/g,
+			important : /!important(?=\s*(?:;|\}|\n))/gi,
+			cssproperty : /\b[\w\d\-]+(?=\s*?:)/g
 		}
 	});
 })(window.panda);
