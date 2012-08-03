@@ -83,7 +83,6 @@ The classnames to use are dictated by the name of the regular expression with ma
 
 The Panda core does contain some regular expressions which will be used in most languages, here are the classnames you'll need for those:
 
-#### ClassNames to use
 Here's a list of the classNames used and what they correspond to:
 * panda-string - A string in the code, either wrapped in single quotes or double.
 * panda-special - Words declared as "specials" in a language.
@@ -94,8 +93,7 @@ Here's a list of the classNames used and what they correspond to:
 * panda-comment2 - A comment in the format: /* multiple line comment */
 * panda-comment3 - A comment in the format: #comment
 
-In addition, the OL element that creates the lines has a classname of 'pandaCode'. 
-
+In addition, the OL element that creates the lines has a classname of 'pandaCode', and the colored node is given the classname of 'panda-code'.
 
 jQuery Panda
 ---------------------------------
@@ -114,7 +112,6 @@ __Enjoy__
 
 Adding to Panda
 ---------------------------
-
 #### Adding Keywords or Specials to an existing language
 __Keywords and Specials can only be "words", do not add symbols or operators using these methods. '_' and '-' are okay to use in these words.__
 
@@ -168,4 +165,6 @@ panda.addLang('asp', {
 });
 ```
 
+Example of Panda SQL:
+--------------------------
 ![Panda SQL](http://i40.servimg.com/u/f40/17/20/25/96/captur37.png)
