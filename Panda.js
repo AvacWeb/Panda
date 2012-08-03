@@ -13,7 +13,7 @@
 		cacheIdentity : true, 
 		languages : [],
 		regex : {
-			comment1 : /(?!:(?=\/))\/\/[^\n]*/g,
+			comment1 : /\/\/[^\n]*/g,
 			comment2 : /\/\*(.|[\n\r])*?\*\//gm,
 			comment3 : /#[^\n]*(?=\n|$)/g,
 			string : /(['"])(?:\\?.)*?\1/g,
@@ -50,7 +50,7 @@
 		, specials = codeObj['specials']
 		, uid = (new Date()).getTime() //unique ID for our replacements. 
 		, store = {}
-		, code = brSwap( code.replace(/ /g, '&nbsp;').replace(/\</g, '&lt;') );  //clean code
+		, code = brSwap( code.replace(/\</g, '&lt;') );  //clean code
 		
 		for(var i = 0, m = matchers[0], count = 0; m; m = matchers[ ++i ]) {
 			var r = this.regex[ m ]
@@ -76,9 +76,9 @@
 			}
 		};
 		
+		code = code.replace(/ /g, '&nbsp;').replace(/&nbsp;clapanda=/g, ' class='); //this is ugly, but it prevents class keyword messing things up.
 		if(this.lineNumbering) code = '<ol class="pandaCode"><li>' + code.split(/\n/).join('</li><li>') + '</li></ol>';
-		code = code.replace(/ clapanda=/g, ' class='); //this is ugly, but it prevents class keyword messing things up.
-		return brSwap( code.replace(/\t|(    )/g, '&nbsp;&nbsp;&nbsp;&nbsp;') , 1);
+		return brSwap( code.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;') , 1);
 	};
 	
 	panda.colorNode = function(node) {
