@@ -1,6 +1,6 @@
 /**
  * Panda.js
- * Client side syntax highlighter for HTML, CSS and Javascript
+ * Extendable Client side syntax highlighter core javascript and API. No languages included.
  *
  * Copyright 2011-2012 AvacWeb (avacweb.com)
  * Released under the MIT and GPL Licenses.
@@ -8,47 +8,19 @@
 (function(){
 	var panda = {
 		lineNumbering : true, //set to false to disable adding line numbers.
-		languages : ['js', 'html', 'css', 'php'],
-		js : {}, html : {}, css: {}, php : {}, //To begin a new language add a new empty object, and to the languages array
+		//When a code box has been identified, it is saved as a property of the node
+		//set this to false to disable that if your codeboxes are likely to change.
+		cacheIdentity : true, 
+		languages : [],
 		regex : {
-			regex : /\/(.(?!\\\/)).*\//g,
-			comment1 : /(?!:(?=\/))[^:]\/\/[^\n]*/g,
+			comment1 : /(?!:(?=\/))\/\/[^\n]*/g,
 			comment2 : /\/\*(.|[\n\r])*?\*\//gm,
-			comment3 : /#[^\n]*/g,
-			comment4 : /(&lt;|<)!--.*?--(&gt;|>)/g,
-			string1 : /"(\\"|[^"])*"/g,
-			string2 : /'(\\'|[^'])*'/g,
-			multiLineString1 : /"(\\"|[^"])*"/gm,
-			multiLineString2 : /'(\\'|[^'])*'/gm,
-			phptag : /((?:<|&lt;)\?(php)?)|(?:\?(?:>|&gt;))/g,
-			htmltag : /(?:&lt;|\<).+?(?:&gt;|\>)/g,
-			htmlspecial : /(?:&lt;|\<)\/?(head|html|body|a|script|meta|link)#?.*?(?:&gt;|\>)/g, //hash because of our swaps
-			operators : /(?:(!|=)?==?)|(?:\|\|)|[\-\+\>\/\*%]/g,
-			attribute : /\s[\w\-]+(?==["'].*?['"])/g,
-			phpvar : /\$[\w\d_]+(?=\W)/g,
-			selector : /.*?(?=\s*\{)/g,
-			extra : /[:\{\}\[\]\(\)]/g //can't includes ';' because it can be in any entity.
+			comment3 : /#[^\n]*(?=\n|$)/g,
+			string : /(['"])(?:\\?.)*?\1/g,
+			operators : /(?:(!|=)?==?)|(?:\|\|)|[\-\+\>\/\*%]|&(amp;)?&(amp;)?/g,
+			extra : /[:\{\}\[\]\(\)]/g //can't include ';' because it can be in entity and we risk ruining the html.
 		}
 	};
-
-	panda.js.keywords = 'var function return if else while do this new typeof for null false true'.split(' ');
-	panda.js.specials = 'document window Array RegExp Object Math String Number Date'.split(' ');
-	panda.js.matchers = 'comment1 comment2 string1 string2 regex operators extra'.split(' ');
-	
-	panda.html.keywords = panda.html.specials = [];
-	panda.html.matchers = 'comment4 attribute htmlspecial htmltag'.split(' ');
-	
-	panda.php.keywords = 'var function private public static if else return while do this new typeof for foreach as null false true'.split(' ');
-	panda.php.specials = 'echo require include int array global'.split(' ');
-	panda.php.matchers = 'comment3 comment2 comment1 multiLineString1 multiLineString2 phpvar phptag operators extra'.split(' ');
-	
-	panda.css.keywords = panda.css.specials = [];
-	panda.css.matchers = 'comment2 string1 string2 selector extra'.split(' ');
-	
-	// For new languages. 
-	// panda.newLang.keywords = 'keywords in the new language'.split(' '); 
-	// panda.newLand.specials = 'special keywords often colored differently'.split(' ');
-	// panda.newLang.matchers = 'list of regexs from the above which occur in this language. The order matters'.split(' ')
 	
 	//swap all BR elements into new lines. Makes it easier imo. 
 	function brSwap(code, dir) {
@@ -57,19 +29,16 @@
 	
 	//wrap text in SPAN tags with a classname.
 	function spanWrap(cn, text) {
-		return '<span class="' + cn + '">' + text + '</span>';
+		//clapanda? We give it this attribute, instead of 'class' because 'class' is a keyword in a lot of languages. 
+		//clapanda is then replaced with class at the end.
+		return '<span clapanda="' + cn + '">' + text + '</span>';
 	};
 	
 	//replaces special words such as 'var' and 'function' etc. Avoids it in variable names such as var myfunction;
 	function parseSpecials(code, arr, cn) {
-		return code.replace(RegExp('(?:^|\\W)(' + arr.join('|') + ')(?:\\W)', 'g'), function(c, word) {
-			return c.replace(word, spanWrap(cn, word) );
+		return code.replace(RegExp('\\b(?:' + arr.join('|') + ')\\b', 'g'), function(c) {
+			return spanWrap(cn, c);
 		});
-	};
-	
-	//adds the line numbers. If you wish to add a classname to each line add it in this func.
-	function addLines(code) {
-		return '<ol class="pandaCode"><li>' + code.split(/\n/).join('</li><li>') + '</li></ol>';
 	};
 	
 	//parse function parses a string of text for any of the set up languages above.
@@ -81,18 +50,15 @@
 		, specials = codeObj['specials']
 		, uid = (new Date()).getTime() //unique ID for our replacements. 
 		, store = {}
-		, code = brSwap( code.replace(/(^[\s\t\n]+)|([\s\t\n]+$)/g, '') ); //remove whitespace at start and end. and BR's
+		, code = brSwap( code.replace(/ /g, '&nbsp;').replace(/\</g, '&lt;') );  //clean code
 		
-		for(var i = 0, l = matchers.length; i<l; i++) {
-			var m = matchers[ i ]
-			, r = this.regex[ m ]
+		for(var i = 0, m = matchers[0], count = 0; m; m = matchers[ ++i ]) {
+			var r = this.regex[ m ]
 			, key = '#' + m + '_' + uid + '_'
-			, count = 0
 			, hold = store[ m ] = {};
-			if(!r) continue;
-			
+			if(!r) continue;			
 			code = code.replace(r, function( c ) {
-				var alias = key + count++ + '_' + (r.multiline ? 'm' : '') + '#'; //creates a swap like #regex_uid_1#
+				var alias = key + count++ + '_' + (r.multiline ? 'm_' : '') + '#'; //creates a swap like #regex_uid_1#
 				hold[ alias ] = c;
 				return alias;
 			});
@@ -105,40 +71,42 @@
 			var m = matchers[ i - 1 ], stripped = store[ m ];			
 			for(var stripKey in stripped) {
 				var s = stripped[ stripKey ];
-				if(stripKey.indexOf('_m_#')) s = s.replace(/\n/g, '</span>\n<span class="panda-' + m + '">');
+				if(stripKey.indexOf('_m_#')) s = s.replace(/\n/g, '</span>\n<span clapanda="panda-' + m + '">');
 				code = code.replace( stripKey, spanWrap('panda-'+m, s) );
 			}
 		};
 		
-		if(this.lineNumbering) code = addLines(code);
+		if(this.lineNumbering) code = '<ol class="pandaCode"><li>' + code.split(/\n/).join('</li><li>') + '</li></ol>';
+		code = code.replace(/ clapanda=/g, ' class='); //this is ugly, but it prevents class keyword messing things up.
 		return brSwap( code.replace(/\t|(    )/g, '&nbsp;&nbsp;&nbsp;&nbsp;') , 1);
 	};
 	
 	panda.colorNode = function(node) {
-		var type = panda.identify( node );
+		var type = node.pandaType || panda.identify( node );
 		if(!type) return;
-		if(node.nodeName.toLowerCase() == 'code' && node.parentNode.nodeName.toLowerCase() != 'pre') {
-			var pre = document.createElement('pre');
-			node.parentNode.insertBefore(pre, node);
-			pre.appendChild( node );
-		}
+		if(panda.cacheIdentity) node.pandaType = type;
+		if(node.className) node.className += ' panda-code';
+		else node.className = 'panda-code';
 		node.innerHTML = panda.parse(type, node.innerHTML);
 	};
 	
 	panda.identify = function(node) {
+		if(node.pandaType) return node.pandaType;
 		var reg = /(?:\s|^)panda_(\w+)(?:\s|$)/;
 		if( reg.test( node.className ) ) return reg.exec(node.className)[1]; //test classname for panda_lang class
-		var scores = {}, regex = panda.regex, code = node.innerHTML, langs = panda.languages
-		, i = 0, l = langs.length, winner = 0, winning_lang = null;
+		var scores = {}, regex = panda.regex, code = node.innerHTML, langs = panda.languages;
 		
-		for(var r in regex) scores[r] = (code.match( regex[r] ) || []).length; //find total matches for all the machers
+		for(var r in regex) {
+			//skip these, they don't really help identify a language.
+			if(r == 'extra' || r == 'operators' || r == 'string') continue; 
+			scores[r] = (code.match( regex[r] ) || []).length; //find total matches for all the machers
+		}
 		
-		for(; i<l; i++) {
+		for(var i = 0, l = langs.length, winner = 0, winning_lang = null; i<l; i++) {
 			var total = 0, lang = panda[ langs[i] ];
-			//create a score for this language, by totaling the number of matches form the matchers.
 			for(var j = 0, k = lang.matchers.length; j<k; j++) total += scores[ lang.matchers[j] ];
 			//total up occurences of keywords.
-			total += (code.match(RegExp( lang.keywords.join('|') )) || []).length;
+			total += (code.match(RegExp('\\W('+lang.keywords.join('|')+')\\W')) || []).length;
 			if(total > winner) {
 				winner = total;
 				winning_lang = langs[i];
@@ -147,26 +115,25 @@
 		return winning_lang;
 	};
 	
-	panda.addKeyword = function(lang, word) {
-		panda[ lang ].keywords.push(word);
+	panda.addSpecials = function(lang, words) {
+		this.addKeywords(lang, words, true);
 	};
 	
-	panda.addSpecial = function(lang, word) {
-		panda[ lang ].specials.push(word);
+	panda.addKeywords = function(lang, words, specials) {
+		if(lang in panda) {
+			for(var i = 0, l = words.length; i<l; i++) panda[lang][ specials ? 'specials' : 'keywords' ].push( words[i] );
+		}
 	};
 	
 	panda.addLang = function(name, obj) {
-		if('matchers' in obj && 'keywords' in obj && 'specials' in obj) {
+		if('matchers' in obj) {
 			var n = panda[name] = {};
 			panda.languages.push( name );
 			n.matchers = typeof obj.matchers == 'string' ? obj.matchers.split(' ') : obj.matchers;
-			n.specials = typeof obj.specials == 'string' ? obj.specials.split(' ') : obj.specials;
-			n.keywords = typeof obj.keywords == 'string' ? obj.keywords.split(' ') : obj.keywords;
-			
+			n.specials = (typeof obj.specials == 'string' ? obj.specials.split(' ') : obj.specials) || [];
+			n.keywords = (typeof obj.keywords == 'string' ? obj.keywords.split(' ') : obj.keywords) || [];
 			if(obj.regex && typeof obj.regex == 'object') {
-				for(var i in obj.regex) {
-					panda.regex[ i ] = obj.regex[ i ];
-				}
+				for(var i in obj.regex) panda.regex[ i ] = obj.regex[ i ];
 			}
 		}
 	};

@@ -1,0 +1,41 @@
+@charset "utf-8";
+
+/* Panda Syntax Highlighter - https://github.com/AvacWeb/Panda */
+
+/* colored node */
+.panda {
+	padding: 5px 10px;
+	font-size: 1.1em;
+	font-family: monospace;
+	background: #EFEFEF;
+	color: #0D700D;
+	border: 1px solid #CCC;
+	overflow: auto;
+	max-height: 300px;
+	text-shadow: 1px 1px 1px white;
+	text-align: left;
+}
+
+.panda-string, .panda-multLineString {
+    color: #C03;
+}
+.panda-special {
+    color: #09F;
+}
+.panda-keyword {
+    color: #009;
+}
+.panda-operators, .panda-extra {
+	font-weight: bold;
+	color : #000;
+}
+.panda-comment1, .panda-comment2, .panda-comment3 {
+    color: #666;
+    font-style: italic;
+}
+ol.pandaCode li {
+    padding: 1px 10px;
+    margin: 4px 0;
+    border-left: 2px solid green;
+    list-style-type: decimal-leading-zero;
+}
