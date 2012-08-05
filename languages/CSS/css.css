@@ -1,10 +1,4 @@
-.panda-selector {
-	color: #FF00F5;
-}
-.panda-cssproperty {
-	color : #105289;
-	font-weight: bold;
-}
-.panda-important {
-	color: #f00;
-}
+.panda-selector { color: #FF00F5; } /* selector section */
+.panda-cssproperty { color : #105289; } /* property name */
+.panda-important { color: #f00; } /* !important declaration */
+.panda-selector-comma { color: #0D700D; } /* comma seperating two selectors. */

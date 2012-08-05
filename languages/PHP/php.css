@@ -1,6 +1,3 @@
-.panda-phptag {
-	color : red;
-}
-.panda-phpvar {
-	color : #EB00FF;
-}
+.panda-phptag { color : red; } /* tags: <? <?php ?> */
+.panda-phpvar { color : #EB00FF; } /* php var $var */
+.panda-constant { color : #633; font-weight: bold; } /* php constant */

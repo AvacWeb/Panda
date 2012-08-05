@@ -79,21 +79,11 @@ Styling Panda
 ------------------------------------    
 The SPAN tags inside the Panda'd code do not contain a color in a style attribute, in order to make them colored you will need to declare a color property for them in your CSS. This allows for much more freedom of how you would like your code to look and making it match your site.
 
-The classnames to use are dictated by the name of the regular expression with matches each item. When you look at languages in the language folder, the classnames and css will be provided and can be edited to your liking.
+The classnames to use are dictated by the name of the regular expression which matches each item. When you look at languages in the language folder, the CSS file will be commented, so you know what each selector corresponds too. The Panda.css file is also commented like this too. 
 
-The Panda core does contain some regular expressions which will be used in most languages, here are the classnames you'll need for those:
 
-Here's a list of the classNames used and what they correspond to:
-* panda-string - A string in the code, either wrapped in single quotes or double.
-* panda-special - Words declared as "specials" in a language.
-* panda-keyword - Those considered keywords eg. if, else, for, while
-* panda-operators - includes: !=, !==, ==, =, ===, ||, -, *, +, %, >, <, /, &&
-* panda-extra - Includes: :, {, }, [, ], (, )
-* panda-comment1 - A comment in the format: //comment
-* panda-comment2 - A comment in the format: /* multiple line comment */
-* panda-comment3 - A comment in the format: #comment
+In addition, the OL element that creates the lines has a classname of 'pandaCode', and the node that was passed to the colorNode method is given the className of 'panda-code'. 
 
-In addition, the OL element that creates the lines has a classname of 'pandaCode', and the colored node is given the classname of 'panda-code'.
 
 jQuery Panda
 ---------------------------------
@@ -112,6 +102,7 @@ __Enjoy__
 
 Adding to Panda
 ---------------------------
+
 #### Adding Keywords or Specials to an existing language
 __Keywords and Specials can only be "words", do not add symbols or operators using these methods. '_' and '-' are okay to use in these words.__
 
@@ -165,6 +156,21 @@ panda.addLang('asp', {
 });
 ```
 
-Example of Panda SQL:
---------------------------
+#### More specific Regexp's.
+You can match more specific regex's by declaring some "internal" regular expressions. You do this, by making the property in the regex object an object containing 2 properties, outer and inner. For example if you want to match ID selectors inside of a CSS selector, you'd have your regex for matching a selector, and then some internal regular expressions which are matched against each selecotr match.
+```javascript
+regex : {
+	selector : {
+		outer : /[^\{\}]+?(?=\s*?\{)/g, //matches the selector part.
+		inner : {
+			id : /\b#[\w\d_-]+\b/g, //match an ID part inside the selector.
+			class : /\b.[\d\w_-]+\b/g //match a class part inside the selector
+		}
+	}
+}
+```
+These would be given the classname 'panda-selector-id' and 'panda-selector-class', while the selector part would still have the classname 'panda-selector'. 
+
+__The best way to learn how to add languages is looking at the JS in the languages folder__
+
 ![Panda SQL](http://i40.servimg.com/u/f40/17/20/25/96/captur37.png)

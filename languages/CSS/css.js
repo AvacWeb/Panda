@@ -6,7 +6,13 @@
 		specials : [],
 		keywords : [],
 		regex : { 
-			selector : /[^\{\}]+?(?=\s*?\{)/g,
+			selector : {
+				outer: /[^\{\}]+?(?=\s*?\{)/g,
+				inner : {
+					comma : /,(?![^\[]*\])/g //match comma to return it to normal color.
+				}
+			},
+				
 			important : /!important(?=\s*(?:;|\}|\n))/gi,
 			cssproperty : /\b[\w\d\-]+(?=\s*?:)/g
 		}

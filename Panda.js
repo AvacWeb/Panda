@@ -4,7 +4,7 @@
  *
  * Copyright 2011-2012 AvacWeb (avacweb.com)
  * Released under the MIT and GPL Licenses.
- */
+ */ 
 (function(){
 	var panda = {
 		lineNumbering : true, //set to false to disable adding line numbers.
@@ -24,7 +24,7 @@
 	
 	//swap all BR elements into new lines. Makes it easier imo. 
 	function brSwap(code, dir) {
-		return dir ? code.replace(/\n/g, '<br/>') : code.replace(/\<br\s?\/?\>/g, '\n');
+		return dir ? code.replace(/\n/g, '<br/>') : code.replace(/\<br\s?\/?\>/gi, '\n');
 	};
 	
 	//wrap text in SPAN tags with a classname.
@@ -41,6 +41,12 @@
 		});
 	};
 	
+	//mini parse function for internal regexps.
+	function quickParse(name, obj, code) {
+		for(var r in obj) code = code.replace(obj[r], function(c) { return spanWrap(name + '-' + r, c); });
+		return code;
+	};
+	
 	//parse function parses a string of text for any of the set up languages above.
 	panda.parse = function(type, code) {
 		var codeObj = panda[type];
@@ -50,15 +56,22 @@
 		, specials = codeObj['specials']
 		, uid = (new Date()).getTime() //unique ID for our replacements. 
 		, store = {}
-		, code = brSwap( code.replace(/\</g, '&lt;') );  //clean code
+		, code = brSwap( code ).replace(/\</g, '&lt;').replace(/>/g, '&gt;');  //clean code
 		
 		for(var i = 0, m = matchers[0], count = 0; m; m = matchers[ ++i ]) {
 			var r = this.regex[ m ]
 			, key = '#' + m + '_' + uid + '_'
-			, hold = store[ m ] = {};
-			if(!r) continue;			
+			, hold = store[ m ] = {}
+			, innerRegex = false //internal parsing. Eg, parsing attributes inside html tags.
+			if(!r) continue;
+			if(r.inner) {
+				innerRegex = r.inner;
+				r = r.outer;
+			}
+			
 			code = code.replace(r, function( c ) {
 				var alias = key + count++ + '_' + (r.multiline ? 'm_' : '') + '#'; //creates a swap like #regex_uid_1#
+				if(innerRegex) c = quickParse('panda-'+m, innerRegex, c);
 				hold[ alias ] = c;
 				return alias;
 			});
@@ -85,8 +98,7 @@
 		var type = node.pandaType || panda.identify( node );
 		if(!type) return;
 		if(panda.cacheIdentity) node.pandaType = type;
-		if(node.className) node.className += ' panda-code';
-		else node.className = 'panda-code';
+		node.className = node.className ? node.className + ' panda-code' : 'panda-code';
 		node.innerHTML = panda.parse(type, node.innerHTML);
 	};
 	
@@ -104,9 +116,9 @@
 		
 		for(var i = 0, l = langs.length, winner = 0, winning_lang = null; i<l; i++) {
 			var total = 0, lang = panda[ langs[i] ];
-			for(var j = 0, k = lang.matchers.length; j<k; j++) total += scores[ lang.matchers[j] ];
+			for(var j = 0, k = lang.matchers.length; j<k; j++) total += (scores[ lang.matchers[j] ] || 0);
 			//total up occurences of keywords.
-			total += (code.match(RegExp('\\W('+lang.keywords.join('|')+')\\W')) || []).length;
+			total += (code.match(RegExp('\\b('+lang.keywords.join('|')+')\\b')) || []).length;
 			if(total > winner) {
 				winner = total;
 				winning_lang = langs[i];

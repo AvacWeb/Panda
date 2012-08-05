@@ -8,7 +8,8 @@
 		regex : {
 			phptag : /(?:&lt;\?(?:php)?)|(?:\?(?:>|&gt;))/g,
 			multiLineString : /(["'])(\\?.|\r?\n)*?\1/gm,
-			phpvar : /\$+[\w\d_]+(?=\W)/g
+			phpvar : /\$+[\w\d_]+(?=\W)/g,
+			constant : /\b[A-Z_]+?(?=\W)/g
 		}
 	});
 })(window.panda);

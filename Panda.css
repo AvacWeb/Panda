@@ -1,8 +1,4 @@
-@charset "utf-8";
-
 /* Panda Syntax Highlighter - https://github.com/AvacWeb/Panda */
-
-/* colored node */
 .panda-code {
 	padding: 5px 10px;
 	font-size: 1.2em;
@@ -15,27 +11,14 @@
 	text-shadow: 1px 1px 1px white;
 	text-align: left;
 }
-
-.panda-string, .panda-multiLineString, .panda-JSmultiline {
-    color: #C03;
-}
-.panda-special {
-    color: #09F;
-}
-.panda-keyword, .panda-extra {
-    color: #009;
-}
-.panda-operators {
-	font-weight: bold;
-	color : #000;
-}
-.panda-comment1, .panda-comment2, .panda-comment3, .panda-comment1 span, .panda-comment2 span, .panda-comment3 span {
-    color: #666!important;
-    font-style: italic;
-}
 ol.pandaCode li {
     padding: 1px 10px;
     margin: 4px 0;
     border-left: 2px solid green;
     list-style-type: decimal-leading-zero;
 }
+.panda-string, .panda-multiLineString, .panda-JSmultiline { color: #C03; } /* string literals */
+.panda-special { color: #09F; } /* words defined as special */
+.panda-keyword, .panda-extra { color: #009; } /* keywords. .panda-extra = square braces, parentheses and curly braces. */
+.panda-operators { font-weight: bold; color : #000; } /* > < & = == === !== != ! && * % + / || */
+.panda-comment1, .panda-comment2, .panda-comment3, .panda-comment1 span, .panda-comment2 span, .panda-comment3 span { color: #666!important; font-style: italic; } /* comments */

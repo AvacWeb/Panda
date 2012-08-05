@@ -2,18 +2,20 @@
 (function(p) {
 	if(!p) return;
 	var obj = {
-		matchers : 'xmlcomment attribute attributevalue htmltag',
+		matchers : 'xmlcomment htmltag',
 		specials : [],
 		keywords : [],
 		regex : {
 			xmlcomment : /&lt;!--.*?--(?:&gt;|>)/g,
-			htmltag : /&lt;\/?.+?(?:&gt;|\>)/g,
-			attribute : /\b[\w\d\-]+(?==["'].*?['"])/g,
-			attributevalue : /\B["'](?:\\?.)+?['"](?=(?:.(?!>|&gt;)|(?:&gt;|>))+)/g
+			htmltag : {
+				outer : /&lt;\/?.+?(?:&gt;|\>)/g,
+				inner : {
+					attribute : /\B(['"])(?:\\?.)+?\1/g
+				}
+			}
 		}
-	}
+	};
 	p.addLang('xml', obj);
-	obj.regex.htmlspecial = /&lt;\/?(?:head|html|body|a|script|meta|link).*?(?:&gt;|\>)/g;
-	obj.matchers = 'xmlcomment attribute attributevalue htmlspecial htmltag'
+	obj.regex.htmltag.inner.special = /&lt;\/?(?:head|html|body|a|script|meta|link).*?(?:&gt;|\>)/g;
 	p.addLang('html',  obj);
 })(window.panda);
