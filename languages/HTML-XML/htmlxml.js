@@ -10,12 +10,12 @@
 			htmltag : {
 				outer : /&lt;\/?.+?(?:&gt;|\>)/g,
 				inner : {
-					attribute : /\B(['"])(?:\\?.)+?\1/g
+					attribute : /(['"])(?:\\?.)+?\1(?=&|\s|>)/g
 				}
 			}
 		}
 	};
 	p.addLang('xml', obj);
-	obj.regex.htmltag.inner.special = /&lt;\/?(?:head|html|body|a|script|meta|link).*?(?:&gt;|\>)/g;
+	obj.regex.htmltag.inner.special = /&lt;\/?(?:head|html|body|a|script|meta|link).*?&gt;/g;
 	p.addLang('html',  obj);
 })(window.panda);
