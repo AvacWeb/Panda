@@ -1,3 +1,4 @@
 .panda-phptag { color : red; } /* tags: <? <?php ?> */
 .panda-phpvar { color : #EB00FF; } /* php var $var */
-.panda-constant { color : #633; font-weight: bold; } /* php constant */
+.panda-constant { color : #633; font-weight: bold; } /* php constant */	
+.panda-phpscopes { color: blue; } /* Scope operators: :: and -> */		

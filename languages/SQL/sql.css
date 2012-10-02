@@ -1,3 +1,1 @@
 .panda-sqlstring { color : #F500FF; } /* string like `bla`, often used in some DBMS. */
-.panda-sqllimit { color : #09C; } /* LIMIT part of a query */
-.panda-sqllimit-int { color : red; } /* the integers of the LIMIT part of the query. */

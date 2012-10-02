@@ -21,9 +21,9 @@
 }
 .panda-code ol li:hover { background: #DEDEDE; }
 
-.panda-string, .panda-multiLineString, .panda-JSmultiline { color: #C03; } /* string literals */
+.panda-string, .panda-multiLineString { color: #C03; } /* string literals */
 .panda-special { color: #09F; } /* words defined as special */
 .panda-keyword, .panda-extra { color: #009; } /* keywords. .panda-extra = square braces, parentheses and curly braces. */
 .panda-operators { font-weight: bold; color : #000; } /* > < & = == === !== != ! && * % + / || */
-.panda-comment1, .panda-comment2, .panda-comment3, .panda-comment1 span, .panda-comment2 span, .panda-comment3 span { color: #666!important; font-style: italic; } /* comments */
+.panda-comment1, .panda-comment2, .panda-comment3 { color: #666!important; font-style: italic; } /* comments */
 .panda-int { color: #f00; }

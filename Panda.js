@@ -61,7 +61,7 @@
 		, specials = codeObj['specials']
 		, uid = (new Date()).getTime() //unique ID for our replacements. 
 		, store = {}
-		, code = brSwap( code ).replace(/\</g, '&lt;').replace(/>/g, '&gt;');  //clean code
+		, code = brSwap( code ).replace(/\</g, '&lt;').replace(/>/g, '&gt;').replace(/&nbsp;/g, ' ');  //clean code
 		
 		for(var i = 0, count = 0, m; (m = matchers[ i++ ]); ) {
 			var r = this.regex[ m ]
@@ -86,6 +86,11 @@
 		if(keywords.length) code = parseSpecials(code, keywords, 'panda-keyword');
 		if(specials.length) code = parseSpecials(code, specials, 'panda-special');
 		
+		//Everyone likes their integers colored.
+		if(!codeObj.noints) code = code.replace(/\b\d+(?:\.\d+)?\b/g, function(num) {
+			return spanWrap('panda-int', num); 
+		});
+		
 		for(i = matchers.length; i; i--) {
 			var m = matchers[ i - 1 ], stripped = store[ m ];			
 			for(var stripKey in stripped) {
@@ -94,11 +99,6 @@
 				code = code.replace( stripKey, spanWrap('panda-'+m, s) );
 			}
 		};
-		
-		//Everyone likes their integers colored.
-		if(!codeObj.noints) code = code.replace(/\b\d+(?:\.\d+)?\b/g, function(num) {
-			return spanWrap('panda-int', num); 
-		});
 		
 		//this is ugly, but it prevents class keyword messing things up.
 		code = code.replace(/ /g, '&nbsp;').replace(/&nbsp;clapanda=/g, ' class=').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;'); 

@@ -9,7 +9,8 @@
 		regex : {
 			prompts : /\b(?:(?:&gt;){3}|\.{3})\b/g,
 			longstring : /('''|""")(?:.|[\n\r])*?\1/gm
-		}
+		},
+		lines : 'cmd'
 	};
 	
 	p.addLang('py', obj); 

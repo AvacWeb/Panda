@@ -10,7 +10,7 @@
 			htmltag : {
 				outer : /&lt;\/?.+?(?:&gt;|\>)/g,
 				inner : {
-					attribute : /(['"])(?:\\?.)+?\1(?=&|\s|>)/g
+					attribute : /(['"])(?:\\?.)+?\1/g
 				}
 			}
 		}
