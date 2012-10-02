@@ -8,17 +8,22 @@
 	border: 1px solid #CCC;
 	overflow: auto;
 	max-height: 300px;
-	text-shadow: 1px 1px 1px white;
+	text-shadow: 0 1px white;
 	text-align: left;
+	display: block;
 }
-ol.pandaCode li {
+.panda-code ol { padding-left: 15px; }
+.panda-code ol li {
     padding: 1px 10px;
     margin: 4px 0;
     border-left: 2px solid green;
     list-style-type: decimal-leading-zero;
 }
+.panda-code ol li:hover { background: #DEDEDE; }
+
 .panda-string, .panda-multiLineString, .panda-JSmultiline { color: #C03; } /* string literals */
 .panda-special { color: #09F; } /* words defined as special */
 .panda-keyword, .panda-extra { color: #009; } /* keywords. .panda-extra = square braces, parentheses and curly braces. */
 .panda-operators { font-weight: bold; color : #000; } /* > < & = == === !== != ! && * % + / || */
 .panda-comment1, .panda-comment2, .panda-comment3, .panda-comment1 span, .panda-comment2 span, .panda-comment3 span { color: #666!important; font-style: italic; } /* comments */
+.panda-int { color: #f00; }
