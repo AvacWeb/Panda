@@ -101,7 +101,7 @@
 		};
 		
 		//this is ugly, but it prevents class keyword messing things up.
-		code = code.replace(/ /g, '&nbsp;').replace(/&nbsp;clapanda=/g, ' class=').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;'); 
+		code = code.split(' ').join('&nbsp;').replace(/&nbsp;clapanda=/g, ' class=').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;'); 
 		return brSwap( addLines(code) , 1);
 	};
 	
